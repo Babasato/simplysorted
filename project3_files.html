@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simply Sorted · Project 3 · File Organisation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --green:#3D6B4F;--green-light:#6A9A78;--green-pale:#E8F0EB;
+    --cream:#FAF6EF;--cream-dark:#F0EAE0;--text:#2C2C2C;--muted:#7A7060;
+    --red:#C0392B;--red-pale:#FDECEA;--white:#fff;
+    --folder:#5C8DBC;--folder-pale:#E8F0FA;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);}
+
+  .doc-header{background:var(--green);color:var(--white);padding:2.5rem 3rem;display:flex;justify-content:space-between;align-items:flex-end;}
+  .doc-header h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600;margin-bottom:.4rem;}
+  .doc-header p{font-size:.9rem;opacity:.75;}
+  .doc-header .badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:.5rem 1.1rem;border-radius:2rem;font-size:.82rem;text-align:center;white-space:nowrap;}
+  .doc-header .badge strong{display:block;font-size:1.1rem;}
+
+  .outcome-bar{background:var(--green);color:var(--white);padding:1.2rem 3rem;display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;}
+  .outcome-bar .stat{text-align:center;}
+  .outcome-bar .stat strong{display:block;font-size:1.6rem;font-family:'Playfair Display',serif;}
+  .outcome-bar .stat span{font-size:.8rem;opacity:.75;}
+
+  .page{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+  .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:600;margin-bottom:.5rem;}
+  h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:1.2rem;color:var(--text);}
+  .section{margin-bottom:3rem;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+
+  /* ── DRIVE SIMULATION ── */
+  .drive-window{background:var(--white);border:1px solid #ddd;border-radius:.6rem;overflow:hidden;}
+  .drive-bar{background:#f8f8f8;border-bottom:1px solid #e0e0e0;padding:.5rem 1rem;display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:#666;}
+  .drive-bar span{background:#e0e0e0;border-radius:.25rem;padding:.15rem .5rem;}
+
+  /* messy drive */
+  .file-grid{display:flex;flex-wrap:wrap;gap:.5rem;padding:1rem;}
+  .file-item{
+    display:flex;flex-direction:column;align-items:center;gap:.3rem;
+    width:80px;cursor:default;
+  }
+  .file-icon{font-size:1.6rem;line-height:1;}
+  .file-name{font-size:.62rem;text-align:center;color:#444;word-break:break-all;line-height:1.2;}
+  .file-name.bad{color:var(--red);}
+  .file-count-note{padding:.5rem 1rem;background:var(--red-pale);font-size:.75rem;color:var(--red);font-weight:500;}
+
+  /* clean drive */
+  .folder-tree{padding:1rem;}
+  .folder-row{
+    display:flex;align-items:center;gap:.5rem;
+    padding:.38rem .5rem;border-radius:.35rem;cursor:default;
+    font-size:.83rem;
+  }
+  .folder-row:hover{background:var(--green-pale);}
+  .folder-row.top{font-weight:600;color:var(--text);}
+  .folder-row.sub{padding-left:1.8rem;color:var(--muted);}
+  .folder-row.sub2{padding-left:3.2rem;color:#999;font-size:.78rem;}
+  .folder-icon{font-size:1rem;flex-shrink:0;}
+  .file-ext{
+    margin-left:auto;font-size:.68rem;
+    padding:.1rem .4rem;border-radius:.25rem;font-weight:500;
+  }
+  .ext-pdf{background:#FDECEA;color:var(--red);}
+  .ext-doc{background:#E3F2FD;color:#1565C0;}
+  .ext-xls{background:var(--green-pale);color:var(--green);}
+
+  /* naming convention */
+  .naming-box{
+    background:var(--white);border:1px solid var(--cream-dark);
+    border-radius:.75rem;padding:1.5rem;
+  }
+  .naming-formula{
+    background:var(--green-pale);border-left:3px solid var(--green);
+    padding:.8rem 1.2rem;border-radius:0 .4rem .4rem 0;
+    font-family:'Courier New',monospace;font-size:.9rem;color:var(--green);
+    font-weight:600;margin-bottom:1rem;
+  }
+  .naming-example{
+    display:flex;align-items:center;gap:.6rem;
+    padding:.45rem .7rem;border-radius:.35rem;font-size:.8rem;margin-bottom:.35rem;
+    background:var(--cream);
+  }
+  .naming-example .check{color:var(--green);font-weight:700;flex-shrink:0;}
+  .naming-example .cross{color:var(--red);font-weight:700;flex-shrink:0;}
+  .naming-example code{font-family:'Courier New',monospace;font-size:.78rem;}
+
+  .improvements{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+  .improvements li{display:flex;align-items:flex-start;gap:.6rem;font-size:.88rem;}
+  .improvements li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+
+  .info-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:1.5rem;}
+  .info-table td{padding:.65rem .9rem;border-bottom:1px solid var(--cream-dark);}
+  .info-table td:first-child{font-weight:600;color:var(--green);width:40%;}
+  .info-table tr:nth-child(even) td{background:var(--green-pale);}
+
+  .quote{background:var(--green-pale);border-left:3px solid var(--green);padding:1.2rem 1.5rem;border-radius:0 .5rem .5rem 0;font-style:italic;color:var(--muted);font-size:.9rem;margin-top:1.5rem;}
+  .quote cite{display:block;margin-top:.5rem;font-style:normal;font-size:.8rem;color:var(--green);font-weight:600;}
+
+  .rules-box{background:var(--white);border:1px solid var(--cream-dark);border-radius:.75rem;padding:1.5rem;}
+  .rules-box h3{font-size:.95rem;font-weight:600;color:var(--green);margin-bottom:1rem;}
+  .rule-item{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--cream-dark);font-size:.85rem;}
+  .rule-item:last-child{border:none;}
+  .rule-num{width:20px;height:20px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+
+  .doc-footer{background:var(--text);color:rgba(255,255,255,.5);text-align:center;padding:1.5rem;font-size:.8rem;}
+  .doc-footer span{color:rgba(255,255,255,.85);}
+
+  @media(max-width:700px){.two-col{grid-template-columns:1fr;}.doc-header{flex-direction:column;gap:1rem;}.outcome-bar{gap:1.5rem;}}
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div>
+    <p style="opacity:.6;font-size:.8rem;margin-bottom:.3rem;">SIMPLY SORTED · PROJECT 3 OF 3</p>
+    <h1>File & Folder Organisation System</h1>
+    <p>Client: Sarah Clarke Consulting &nbsp;·&nbsp; Google Drive &nbsp;·&nbsp; March 2026</p>
+  </div>
+  <div class="badge">Setup time<strong>3 days</strong></div>
+</div>
+
+<div class="outcome-bar">
+  <div class="stat"><strong>340</strong><span>Files — before</span></div>
+  <div class="stat"><strong>278</strong><span>Files at root (no folder)</span></div>
+  <div class="stat"><strong>22</strong><span>Folders created</span></div>
+  <div class="stat"><strong>34</strong><span>Duplicates removed</span></div>
+  <div class="stat"><strong>&lt;30s</strong><span>To find any file — after</span></div>
+</div>
+
+<div class="page">
+
+  <!-- BEFORE / AFTER DRIVE -->
+  <div class="section">
+    <div class="label">The transformation</div>
+    <h2>Before & After</h2>
+    <div class="two-col">
+
+      <!-- BEFORE -->
+      <div>
+        <p style="font-size:.8rem;color:var(--red);font-weight:600;margin-bottom:.5rem;">✕ BEFORE — 278 files at root level, no structure</p>
+        <div class="drive-window">
+          <div class="drive-bar">
+            <svg width="12" height="12" fill="#999" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>My Drive</span> → everything dumped here
+          </div>
+          <div class="file-count-note">278 files · 2 folders (Downloads, Misc) · No system</div>
+          <div class="file-grid">
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name bad">final FINAL invoice.pdf</div></div>
+            <div class="file-item"><div class="file-icon">📊</div><div class="file-name">expenses.xlsx</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name bad">contract v3 REAL.docx</div></div>
+            <div class="file-item"><div class="file-icon">🖼️</div><div class="file-name">headshot.jpg</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name bad">invoice (copy).pdf</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name">proposal draft.docx</div></div>
+            <div class="file-item"><div class="file-icon">📊</div><div class="file-name bad">expenses2.xlsx</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name">T&Cs.pdf</div></div>
+            <div class="file-item"><div class="file-icon">📁</div><div class="file-name">Downloads</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name bad">NEW invoice march.pdf</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name">meeting notes.docx</div></div>
+            <div class="file-item"><div class="file-icon">📁</div><div class="file-name">Misc</div></div>
+            <div class="file-item"><div class="file-icon">🖼️</div><div class="file-name bad">logo final2.png</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name">untitled.docx</div></div>
+            <div class="file-item"><div class="file-icon">📄</div><div class="file-name bad">proposal SEND THIS.docx</div></div>
+            <div class="file-item" style="width:80px;color:var(--muted);font-size:.7rem;text-align:center;padding-top:1rem;">+ 263 more...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div>
+        <p style="font-size:.8rem;color:var(--green);font-weight:600;margin-bottom:.5rem;">✓ AFTER — Clear hierarchy, consistent naming</p>
+        <div class="drive-window">
+          <div class="drive-bar">
+            <svg width="12" height="12" fill="#999" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>My Drive</span>
+          </div>
+          <div class="folder-tree">
+            <div class="folder-row top"><span class="folder-icon">📁</span> Clients</div>
+            <div class="folder-row sub"><span class="folder-icon">📁</span> Whitmore & Co</div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Invoice_WhitmoreCo_Mar2026.pdf <span class="file-ext ext-pdf">PDF</span></div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Proposal_WhitmoreCo_Jan2026.docx <span class="file-ext ext-doc">DOC</span></div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Contract_WhitmoreCo_Jan2026.pdf <span class="file-ext ext-pdf">PDF</span></div>
+            <div class="folder-row sub"><span class="folder-icon">📁</span> Hartley Group</div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Invoice_HartleyGroup_Feb2026.pdf <span class="file-ext ext-pdf">PDF</span></div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Proposal_HartleyGroup_Feb2026.docx <span class="file-ext ext-doc">DOC</span></div>
+
+            <div class="folder-row top" style="margin-top:.5rem;"><span class="folder-icon">📁</span> Finance</div>
+            <div class="folder-row sub"><span class="folder-icon">📁</span> Invoices / 2026</div>
+            <div class="folder-row sub"><span class="folder-icon">📁</span> Expenses</div>
+            <div class="folder-row sub2"><span class="folder-icon">📊</span> Expenses_Q1_2026.xlsx <span class="file-ext ext-xls">XLS</span></div>
+            <div class="folder-row sub"><span class="folder-icon">📁</span> Tax / 2025–2026</div>
+
+            <div class="folder-row top" style="margin-top:.5rem;"><span class="folder-icon">📁</span> Admin</div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> TandCs_SCC_2025.pdf <span class="file-ext ext-pdf">PDF</span></div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> Insurance_SCC_2025.pdf <span class="file-ext ext-pdf">PDF</span></div>
+
+            <div class="folder-row top" style="margin-top:.5rem;"><span class="folder-icon">📁</span> Marketing</div>
+            <div class="folder-row sub2"><span class="folder-icon">🖼️</span> Headshot_SarahClarke_2025.jpg</div>
+            <div class="folder-row sub2"><span class="folder-icon">🖼️</span> Logo_SCC_Primary_2025.png</div>
+            <div class="folder-row sub2"><span class="folder-icon">📄</span> BrandGuidelines_SCC_2025.pdf <span class="file-ext ext-pdf">PDF</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAMING CONVENTION -->
+  <div class="section">
+    <div class="label">The naming convention</div>
+    <h2>Every file named the same way</h2>
+    <div class="two-col">
+      <div class="naming-box">
+        <div class="naming-formula">[Type]_[Client]_[MonthYear]</div>
+        <div class="naming-example"><span class="check">✓</span><code>Invoice_WhitmoreCo_March2026.pdf</code></div>
+        <div class="naming-example"><span class="check">✓</span><code>Proposal_HartleyGroup_Feb2026.docx</code></div>
+        <div class="naming-example"><span class="check">✓</span><code>Contract_SCC_Jan2026.pdf</code></div>
+        <div class="naming-example"><span class="check">✓</span><code>Expenses_Q1_2026.xlsx</code></div>
+        <div class="naming-example"><span class="check">✓</span><code>Headshot_SarahClarke_2025.jpg</code></div>
+        <div style="border-top:1px solid var(--cream-dark);margin:.8rem 0;"></div>
+        <div class="naming-example"><span class="cross">✕</span><code>final FINAL invoice.pdf</code></div>
+        <div class="naming-example"><span class="cross">✕</span><code>proposal SEND THIS.docx</code></div>
+        <div class="naming-example"><span class="cross">✕</span><code>invoice (copy).pdf</code></div>
+        <div class="naming-example"><span class="cross">✕</span><code>untitled.docx</code></div>
+      </div>
+
+      <div>
+        <div class="label">What changed</div>
+        <h2 style="margin-bottom:1rem;">Improvements made</h2>
+        <ul class="improvements">
+          <li>4 top-level folders covering every area of the business</li>
+          <li>18 subfolders with consistent internal structure</li>
+          <li>All 340 files placed in the correct location</li>
+          <li>34 duplicate files identified and removed (with confirmation)</li>
+          <li>Single naming convention applied to every file</li>
+          <li>No more "final", "v2", "REAL", or "SEND THIS" in filenames</li>
+          <li>Client folders each have: Contracts, Proposals, Deliverables, Correspondence</li>
+          <li>Finance split by year for easy tax-time access</li>
+          <li>Maintenance guide included so the system stays clean</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE RULES -->
+  <div class="section">
+    <div class="label">Keeping it sorted</div>
+    <h2>5 rules to maintain the system</h2>
+    <div class="rules-box">
+      <div class="rule-item"><div class="rule-num">1</div><div>Always save files directly into the correct folder — never to the Drive root or your Desktop</div></div>
+      <div class="rule-item"><div class="rule-num">2</div><div>Follow the naming convention for every new file, every time — no exceptions</div></div>
+      <div class="rule-item"><div class="rule-num">3</div><div>At project end, move completed files into an <em>Archive</em> subfolder within the client folder</div></div>
+      <div class="rule-item"><div class="rule-num">4</div><div>Delete duplicates immediately — the named file is the single source of truth</div></div>
+      <div class="rule-item"><div class="rule-num">5</div><div>Do a 5-minute Drive review monthly — if anything is at root level, file it immediately</div></div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section">
+    <div class="label">Results</div>
+    <h2>By the numbers</h2>
+    <table class="info-table">
+      <tr><td>Files at root level before</td><td>278 of 340 total</td></tr>
+      <tr><td>Organised folders before</td><td>2 (Downloads, Misc)</td></tr>
+      <tr><td>Folders created</td><td>4 top-level + 18 subfolders = 22 total</td></tr>
+      <tr><td>Files correctly placed</td><td>All 340</td></tr>
+      <tr><td>Duplicates removed</td><td>34 (confirmed with Sarah before deletion)</td></tr>
+      <tr><td>Average file search time</td><td>3–5 minutes → under 30 seconds</td></tr>
+      <tr><td>Setup completed in</td><td>3 days</td></tr>
+    </table>
+
+    <blockquote class="quote">
+      "I've been looking for a contract for 20 minutes before now. Today I found it in about 10 seconds. It's a completely different working day."
+      <cite>— Sarah Clarke, Sarah Clarke Consulting &nbsp;·&nbsp; simulated scenario</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <span>Simply Sorted</span> · Remote admin support for UK small businesses · simplysorted.work
+</div>
+</body>
+</html>

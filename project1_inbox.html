@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simply Sorted · Project 1 · Inbox Organisation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --green:#3D6B4F;--green-light:#6A9A78;--green-pale:#E8F0EB;
+    --cream:#FAF6EF;--cream-dark:#F0EAE0;--text:#2C2C2C;--muted:#7A7060;
+    --red:#C0392B;--red-pale:#FDECEA;--white:#fff;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);padding:0;}
+
+  /* ── HEADER ── */
+  .doc-header{
+    background:var(--green);color:var(--white);
+    padding:2.5rem 3rem;
+    display:flex;justify-content:space-between;align-items:flex-end;
+  }
+  .doc-header h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600;margin-bottom:.4rem;}
+  .doc-header p{font-size:.9rem;opacity:.75;}
+  .doc-header .badge{
+    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+    padding:.5rem 1.1rem;border-radius:2rem;font-size:.82rem;text-align:center;white-space:nowrap;
+  }
+  .doc-header .badge strong{display:block;font-size:1.1rem;}
+
+  /* ── LAYOUT ── */
+  .page{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+
+  .outcome-bar{
+    background:var(--green);color:var(--white);
+    padding:1.2rem 3rem;
+    display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;
+  }
+  .outcome-bar .stat{text-align:center;}
+  .outcome-bar .stat strong{display:block;font-size:1.6rem;font-family:'Playfair Display',serif;}
+  .outcome-bar .stat span{font-size:.8rem;opacity:.75;}
+
+  /* ── SECTION LABEL ── */
+  .label{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--green);font-weight:600;margin-bottom:.5rem;
+  }
+  h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:1.2rem;color:var(--text);}
+
+  /* ── COMPARISON ── */
+  .comparison{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:3rem;}
+  .panel{border-radius:.875rem;overflow:hidden;border:1px solid var(--cream-dark);}
+  .panel-head{
+    padding:.9rem 1.2rem;font-weight:600;font-size:.85rem;letter-spacing:.04em;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .panel-head.bad{background:var(--red-pale);color:var(--red);}
+  .panel-head.good{background:var(--green-pale);color:var(--green);}
+  .panel-body{padding:1.2rem;background:var(--white);}
+
+  /* ── INBOX SIMULATION ── */
+  .inbox{display:flex;flex-direction:column;gap:2px;}
+  .email-row{
+    display:grid;grid-template-columns:auto 1fr auto;
+    gap:.6rem;align-items:center;
+    padding:.55rem .75rem;border-radius:.4rem;font-size:.82rem;
+    border-left:3px solid transparent;
+  }
+  .email-row.unread{background:#f0f4ff;border-left-color:#4A6FA5;font-weight:500;}
+  .email-row.read{background:var(--white);color:var(--muted);}
+  .email-row.urgent{background:#FFF8E1;border-left-color:#F39C12;font-weight:500;}
+  .email-row .sender{font-weight:600;font-size:.78rem;min-width:110px;}
+  .email-row .subject{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .email-row .time{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+  .inbox-count{
+    background:var(--red-pale);color:var(--red);
+    font-size:.78rem;font-weight:600;padding:.4rem .8rem;
+    border-radius:.4rem;margin-bottom:.6rem;
+  }
+
+  /* ── LABEL SYSTEM ── */
+  .label-list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;}
+  .label-item{
+    display:flex;align-items:center;gap:.75rem;
+    padding:.65rem 1rem;border-radius:.5rem;
+    background:var(--green-pale);font-size:.85rem;
+  }
+  .label-dot{
+    width:10px;height:10px;border-radius:50%;flex-shrink:0;
+  }
+  .label-item strong{min-width:130px;}
+  .label-item span{color:var(--muted);font-size:.8rem;}
+
+  .filter-list{display:flex;flex-direction:column;gap:.5rem;}
+  .filter-item{
+    display:flex;align-items:flex-start;gap:.6rem;
+    padding:.55rem .9rem;background:var(--white);border:1px solid var(--cream-dark);
+    border-radius:.4rem;font-size:.8rem;
+  }
+  .filter-arrow{color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+  /* ── CLEAN INBOX ── */
+  .clean-inbox{display:flex;flex-direction:column;gap:4px;}
+  .clean-section-head{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);font-weight:600;padding:.4rem .5rem .2rem;border-bottom:1px solid var(--cream-dark);
+    margin-top:.6rem;
+  }
+  .clean-email{
+    display:grid;grid-template-columns:12px 1fr auto;
+    gap:.5rem;align-items:center;
+    padding:.45rem .6rem;border-radius:.35rem;font-size:.8rem;
+  }
+  .clean-email.action{background:#FFF3E0;border-left:2px solid #F39C12;}
+  .clean-email.client{background:var(--green-pale);border-left:2px solid var(--green);}
+  .clean-email.receipt{background:#F3E5F5;border-left:2px solid #8E24AA;}
+  .clean-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+  /* ── INFO TABLE ── */
+  .info-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:1.5rem;}
+  .info-table td{padding:.65rem .9rem;border-bottom:1px solid var(--cream-dark);}
+  .info-table td:first-child{font-weight:600;color:var(--green);width:40%;}
+  .info-table tr:nth-child(even) td{background:var(--green-pale);}
+
+  /* ── SECTION ── */
+  .section{margin-bottom:3rem;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+
+  /* ── QUOTE ── */
+  .quote{
+    background:var(--green-pale);border-left:3px solid var(--green);
+    padding:1.2rem 1.5rem;border-radius:0 .5rem .5rem 0;
+    font-style:italic;color:var(--muted);font-size:.9rem;margin-top:1.5rem;
+  }
+  .quote cite{display:block;margin-top:.5rem;font-style:normal;font-size:.8rem;color:var(--green);font-weight:600;}
+
+  /* ── FOOTER ── */
+  .doc-footer{
+    background:var(--text);color:rgba(255,255,255,.5);
+    text-align:center;padding:1.5rem;font-size:.8rem;
+  }
+  .doc-footer span{color:rgba(255,255,255,.85);}
+
+  @media(max-width:700px){
+    .comparison,.two-col{grid-template-columns:1fr;}
+    .doc-header{flex-direction:column;gap:1rem;align-items:flex-start;}
+    .outcome-bar{gap:1.5rem;padding:1.2rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div>
+    <p style="opacity:.6;font-size:.8rem;margin-bottom:.3rem;">SIMPLY SORTED · PROJECT 1 OF 3</p>
+    <h1>Inbox Organisation System</h1>
+    <p>Client: Sarah Clarke Consulting &nbsp;·&nbsp; Gmail &nbsp;·&nbsp; March 2026</p>
+  </div>
+  <div class="badge">
+    Setup time<strong>48 hours</strong>
+  </div>
+</div>
+
+<div class="outcome-bar">
+  <div class="stat"><strong>3,247</strong><span>Unread emails — before</span></div>
+  <div class="stat"><strong>12</strong><span>Items needing attention — after</span></div>
+  <div class="stat"><strong>7</strong><span>Automatic filters created</span></div>
+  <div class="stat"><strong>6</strong><span>Labels & folders built</span></div>
+  <div class="stat"><strong>~5hrs</strong><span>Saved per week</span></div>
+</div>
+
+<div class="page">
+
+  <!-- BEFORE / AFTER INBOX -->
+  <div class="section">
+    <div class="label">The transformation</div>
+    <h2>Before & After</h2>
+    <div class="comparison">
+
+      <!-- BEFORE -->
+      <div class="panel">
+        <div class="panel-head bad">✕ &nbsp;BEFORE — Inbox chaos</div>
+        <div class="panel-body">
+          <div class="inbox-count">3,247 unread · No folders · No filters</div>
+          <div class="inbox">
+            <div class="email-row unread"><span class="sender">Amazon</span><span class="subject">Your order has shipped — tracking...</span><span class="time">9:42am</span></div>
+            <div class="email-row unread"><span class="sender">LinkedIn</span><span class="subject">You have 14 new notifications</span><span class="time">9:31am</span></div>
+            <div class="email-row unread"><span class="sender">Whitmore Co.</span><span class="subject">RE: Proposal — can we discuss Fri?</span><span class="time">9:15am</span></div>
+            <div class="email-row unread"><span class="sender">Mailchimp</span><span class="subject">🎉 Weekly roundup: top marketing tips</span><span class="time">8:50am</span></div>
+            <div class="email-row unread"><span class="sender">HMRC</span><span class="subject">Self Assessment reminder — action req</span><span class="time">8:22am</span></div>
+            <div class="email-row unread"><span class="sender">Shopify</span><span class="subject">Your free trial ends in 3 days</span><span class="time">Yesterday</span></div>
+            <div class="email-row unread"><span class="sender">Hartley Group</span><span class="subject">Invoice query — please advise</span><span class="time">Yesterday</span></div>
+            <div class="email-row read"><span class="sender">Medium Daily</span><span class="subject">Stories for you: 10 productivity hacks</span><span class="time">Mon</span></div>
+            <div class="email-row unread"><span class="sender">Stripe</span><span class="subject">Payment of £450 received</span><span class="time">Mon</span></div>
+            <div class="email-row read"><span class="sender">Canva</span><span class="subject">New templates added this week 🎨</span><span class="time">Sun</span></div>
+            <div class="email-row unread"><span class="sender">Whitmore Co.</span><span class="subject">Urgent — contract amendment needed</span><span class="time">Fri</span></div>
+            <div class="email-row read"><span class="sender">Substack</span><span class="subject">Your weekly digest from 6 authors</span><span class="time">Fri</span></div>
+          </div>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.8rem;text-align:center;">↑ Client emails, receipts, and newsletters all mixed together</p>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="panel">
+        <div class="panel-head good">✓ &nbsp;AFTER — Organised & calm</div>
+        <div class="panel-body">
+          <div class="clean-inbox">
+            <div class="clean-section-head">⚡ Action Required (2)</div>
+            <div class="clean-email action">
+              <div class="clean-dot" style="background:#F39C12;"></div>
+              <span><strong>Whitmore Co.</strong> — RE: Proposal, can we discuss Fri?</span>
+              <span style="font-size:.72rem;color:var(--muted);">9:15am</span>
+            </div>
+            <div class="clean-email action">
+              <div class="clean-dot" style="background:#F39C12;"></div>
+              <span><strong>HMRC</strong> — Self Assessment reminder</span>
+              <span style="font-size:.72rem;color:var(--muted);">8:22am</span>
+            </div>
+
+            <div class="clean-section-head">👤 Clients (2)</div>
+            <div class="clean-email client">
+              <div class="clean-dot" style="background:var(--green);"></div>
+              <span><strong>Hartley Group</strong> — Invoice query, please advise</span>
+              <span style="font-size:.72rem;color:var(--muted);">Yesterday</span>
+            </div>
+            <div class="clean-email client">
+              <div class="clean-dot" style="background:var(--green);"></div>
+              <span><strong>Whitmore Co.</strong> — Urgent: contract amendment</span>
+              <span style="font-size:.72rem;color:var(--muted);">Fri</span>
+            </div>
+
+            <div class="clean-section-head">🧾 Receipts (2)</div>
+            <div class="clean-email receipt">
+              <div class="clean-dot" style="background:#8E24AA;"></div>
+              <span><strong>Stripe</strong> — Payment of £450 received</span>
+              <span style="font-size:.72rem;color:var(--muted);">Mon</span>
+            </div>
+            <div class="clean-email receipt">
+              <div class="clean-dot" style="background:#8E24AA;"></div>
+              <span><strong>Amazon</strong> — Your order has shipped</span>
+              <span style="font-size:.72rem;color:var(--muted);">9:42am</span>
+            </div>
+
+            <div class="clean-section-head" style="color:#AAAAAA;">📁 Archive — auto-sorted (newsletters, notifications)</div>
+            <div style="text-align:center;font-size:.78rem;color:var(--muted);padding:.8rem;">
+              LinkedIn · Mailchimp · Shopify · Medium · Canva · Substack<br/>
+              <span style="font-size:.72rem;">→ sorted automatically by filter, skip inbox</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /comparison -->
+  </div>
+
+  <!-- WHAT WAS BUILT -->
+  <div class="section">
+    <div class="two-col">
+      <div>
+        <div class="label">Labels created</div>
+        <h2>Folder structure</h2>
+        <div class="label-list">
+          <div class="label-item"><div class="label-dot" style="background:#E53935;"></div><strong>⚡ Action Required</strong><span>Reply or decision needed within 48hrs</span></div>
+          <div class="label-item"><div class="label-dot" style="background:#FB8C00;"></div><strong>⏳ Waiting</strong><span>Sent — awaiting response from others</span></div>
+          <div class="label-item"><div class="label-dot" style="background:var(--green);"></div><strong>👤 Clients</strong><span>All client correspondence, auto-sorted</span></div>
+          <div class="label-item"><div class="label-dot" style="background:#8E24AA;"></div><strong>🧾 Receipts</strong><span>Invoices, orders, subscriptions</span></div>
+          <div class="label-item"><div class="label-dot" style="background:#1E88E5;"></div><strong>📁 Archive</strong><span>Newsletters, read items, reference</span></div>
+          <div class="label-item"><div class="label-dot" style="background:#757575;"></div><strong>🗑️ To Review</strong><span>Holding area for inbox zero sweep</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label">Filters configured</div>
+        <h2>Auto-sorting rules</h2>
+        <div class="filter-list">
+          <div class="filter-item"><span class="filter-arrow">→</span><span>Newsletter keywords (unsubscribe, digest) <strong>→ Archive, skip inbox</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>whitmoreco.com, hartleygroup.co.uk <strong>→ Clients label</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>Subject: invoice / receipt / order <strong>→ Receipts label</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>From: no-reply@* <strong>→ Archive automatically</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>Subject: ACTION or URGENT <strong>→ Action Required + star</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>LinkedIn notifications <strong>→ Archive</strong></span></div>
+          <div class="filter-item"><span class="filter-arrow">→</span><span>Google Alerts <strong>→ Archive</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS TABLE -->
+  <div class="section">
+    <div class="label">Results</div>
+    <h2>By the numbers</h2>
+    <table class="info-table">
+      <tr><td>Unread emails before</td><td>3,247</td></tr>
+      <tr><td>Items requiring attention after</td><td>12 (client emails + one HMRC notice)</td></tr>
+      <tr><td>Folders / labels created</td><td>6, colour-coded</td></tr>
+      <tr><td>Auto-sorting filters</td><td>7 active rules</td></tr>
+      <tr><td>Time to find an email</td><td>Minutes → under 30 seconds</td></tr>
+      <tr><td>Estimated weekly time saved</td><td>~5 hours</td></tr>
+      <tr><td>Setup completed in</td><td>48 hours</td></tr>
+    </table>
+
+    <blockquote class="quote">
+      "I didn't realise how much mental energy the inbox was taking up until it was sorted. It's a completely different experience now."
+      <cite>— Sarah Clarke, Sarah Clarke Consulting &nbsp;·&nbsp; simulated scenario</cite>
+    </blockquote>
+  </div>
+
+</div><!-- /page -->
+
+<div class="doc-footer">
+  <span>Simply Sorted</span> · Remote admin support for UK small businesses · simplysorted.work
+</div>
+
+</body>
+</html>

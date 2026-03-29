@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simply Sorted · Project 2 · Spreadsheet Cleanup</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --green:#3D6B4F;--green-light:#6A9A78;--green-pale:#E8F0EB;
+    --cream:#FAF6EF;--cream-dark:#F0EAE0;--text:#2C2C2C;--muted:#7A7060;
+    --red:#C0392B;--red-pale:#FDECEA;--white:#fff;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);}
+
+  .doc-header{background:var(--green);color:var(--white);padding:2.5rem 3rem;display:flex;justify-content:space-between;align-items:flex-end;}
+  .doc-header h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600;margin-bottom:.4rem;}
+  .doc-header p{font-size:.9rem;opacity:.75;}
+  .doc-header .badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:.5rem 1.1rem;border-radius:2rem;font-size:.82rem;text-align:center;white-space:nowrap;}
+  .doc-header .badge strong{display:block;font-size:1.1rem;}
+
+  .outcome-bar{background:var(--green);color:var(--white);padding:1.2rem 3rem;display:flex;gap:3rem;justify-content:center;flex-wrap:wrap;}
+  .outcome-bar .stat{text-align:center;}
+  .outcome-bar .stat strong{display:block;font-size:1.6rem;font-family:'Playfair Display',serif;}
+  .outcome-bar .stat span{font-size:.8rem;opacity:.75;}
+
+  .page{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+  .label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--green);font-weight:600;margin-bottom:.5rem;}
+  h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:1.2rem;color:var(--text);}
+  .section{margin-bottom:3rem;}
+
+  /* ── SHEET SIMULATION ── */
+  .sheet{border:1px solid #ccc;border-radius:.5rem;overflow:hidden;font-size:.78rem;}
+  .sheet-tab{display:flex;gap:0;}
+  .tab{padding:.45rem 1rem;font-size:.75rem;font-weight:500;cursor:default;}
+  .tab.active-bad{background:var(--red-pale);color:var(--red);border-bottom:2px solid var(--red);}
+  .tab.active-good{background:var(--green-pale);color:var(--green);border-bottom:2px solid var(--green);}
+  .tab.inactive{background:#f5f5f5;color:#999;}
+
+  table.sheet-table{width:100%;border-collapse:collapse;}
+  table.sheet-table th{
+    background:#E8EAED;color:#444;font-weight:600;
+    padding:.4rem .6rem;border:1px solid #ccc;text-align:left;font-size:.75rem;
+  }
+  table.sheet-table td{
+    padding:.38rem .6rem;border:1px solid #ddd;vertical-align:middle;
+  }
+  .messy-header{background:#f0f0f0;color:#888;font-style:italic;}
+  .messy-row td{color:#666;}
+  .messy-row.odd td{background:#fafafa;}
+  .messy-empty td{background:#fff5f5;}
+  .messy-highlight{background:#fff3cd !important;color:#856404;}
+
+  /* AFTER sheet */
+  .clean-header-row th{background:var(--green) !important;color:white !important;font-weight:700;}
+  .clean-row td{background:var(--white);}
+  .clean-row.alt td{background:var(--green-pale);}
+  .clean-row td.amount{text-align:right;font-variant-numeric:tabular-nums;}
+  .tag{display:inline-block;font-size:.7rem;padding:.15rem .5rem;border-radius:2rem;font-weight:500;}
+  .tag.recurring{background:#E3F2FD;color:#1565C0;}
+  .tag.reimbursable{background:#FFF8E1;color:#E65100;}
+  .tag.paid{background:var(--green-pale);color:var(--green);}
+  .total-row td{background:var(--green) !important;color:white !important;font-weight:700;}
+  .total-row td.amount{text-align:right;}
+
+  /* summary */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+  .summary-box{background:var(--white);border:1px solid var(--cream-dark);border-radius:.75rem;padding:1.5rem;}
+  .summary-box h3{font-size:.95rem;font-weight:600;color:var(--green);margin-bottom:1rem;}
+  .summary-row{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--cream-dark);font-size:.85rem;}
+  .summary-row:last-child{border:none;font-weight:700;color:var(--green);}
+  .summary-row span:last-child{font-variant-numeric:tabular-nums;}
+
+  .improvements{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+  .improvements li{display:flex;align-items:flex-start;gap:.6rem;font-size:.88rem;}
+  .improvements li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+
+  .info-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:1.5rem;}
+  .info-table td{padding:.65rem .9rem;border-bottom:1px solid var(--cream-dark);}
+  .info-table td:first-child{font-weight:600;color:var(--green);width:40%;}
+  .info-table tr:nth-child(even) td{background:var(--green-pale);}
+
+  .quote{background:var(--green-pale);border-left:3px solid var(--green);padding:1.2rem 1.5rem;border-radius:0 .5rem .5rem 0;font-style:italic;color:var(--muted);font-size:.9rem;margin-top:1.5rem;}
+  .quote cite{display:block;margin-top:.5rem;font-style:normal;font-size:.8rem;color:var(--green);font-weight:600;}
+  .doc-footer{background:var(--text);color:rgba(255,255,255,.5);text-align:center;padding:1.5rem;font-size:.8rem;}
+  .doc-footer span{color:rgba(255,255,255,.85);}
+
+  @media(max-width:700px){.two-col{grid-template-columns:1fr;}.doc-header{flex-direction:column;gap:1rem;}.outcome-bar{gap:1.5rem;}}
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div>
+    <p style="opacity:.6;font-size:.8rem;margin-bottom:.3rem;">SIMPLY SORTED · PROJECT 2 OF 3</p>
+    <h1>Spreadsheet Cleanup & Organisation</h1>
+    <p>Client: Sarah Clarke Consulting &nbsp;·&nbsp; Google Sheets / Excel &nbsp;·&nbsp; March 2026</p>
+  </div>
+  <div class="badge">Setup time<strong>2 days</strong></div>
+</div>
+
+<div class="outcome-bar">
+  <div class="stat"><strong>1</strong><span>Chaotic sheet — before</span></div>
+  <div class="stat"><strong>2</strong><span>Clean tabs — after</span></div>
+  <div class="stat"><strong>~2hrs</strong><span>Saved per week</span></div>
+  <div class="stat"><strong>£676</strong><span>Total expenses tracked</span></div>
+  <div class="stat"><strong>6</strong><span>Categories with auto-totals</span></div>
+</div>
+
+<div class="page">
+
+  <!-- BEFORE -->
+  <div class="section">
+    <div class="label">Before — the original mess</div>
+    <h2>What Sarah sent over</h2>
+    <div class="sheet">
+      <div class="sheet-tab">
+        <div class="tab active-bad">✕ Sheet1 (original)</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="sheet-table">
+          <tr>
+            <th class="messy-header">date</th>
+            <th class="messy-header">what</th>
+            <th class="messy-header">£</th>
+            <th class="messy-header">cat</th>
+            <th class="messy-header">(blank)</th>
+          </tr>
+          <tr class="messy-row"><td>jan 3</td><td>zoom</td><td>14.99</td><td></td><td class="messy-highlight">monthly</td></tr>
+          <tr class="messy-row odd"><td></td><td>canva pro</td><td>12.99</td><td>software</td><td></td></tr>
+          <tr class="messy-row"><td>5 jan</td><td class="messy-highlight">client lunch</td><td>47.50</td><td>enterainment</td><td>reimbursable</td></tr>
+          <tr class="messy-row odd"><td>jan</td><td>dropbox</td><td>9.99</td><td></td><td></td></tr>
+          <tr class="messy-empty"><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr class="messy-row"><td>12/01</td><td>stationery</td><td>23.40</td><td>office</td><td></td></tr>
+          <tr class="messy-row odd"><td>jan 15</td><td>Adobe</td><td>54.99</td><td class="messy-highlight">Software</td><td></td></tr>
+          <tr class="messy-row"><td>17 jan</td><td>train london</td><td>67.20</td><td>travel</td><td>reimbursable</td></tr>
+          <tr class="messy-row odd"><td>jan</td><td>phone bill</td><td>35.00</td><td>utilities</td><td></td></tr>
+          <tr class="messy-row"><td>20/01</td><td>client gift</td><td>30.00</td><td class="messy-highlight">entertaining</td><td></td></tr>
+          <tr class="messy-empty"><td></td><td class="messy-highlight" colspan="2">TOTAL?</td><td></td><td></td></tr>
+          <tr class="messy-row"><td>Feb 1</td><td>zoom</td><td>14.99</td><td>software</td><td class="messy-highlight">monthly</td></tr>
+          <tr class="messy-row odd"><td>feb 3</td><td>client dinner</td><td>89.40</td><td>entertainment</td><td class="messy-highlight">reimburse??</td></tr>
+          <tr class="messy-row"><td>4/02</td><td>train</td><td>43.10</td><td class="messy-highlight">Travel</td><td></td></tr>
+        </table>
+      </div>
+      <div style="padding:.6rem 1rem;background:#fff5f5;font-size:.75rem;color:var(--red);">
+        Problems: inconsistent dates · typos in categories · blank rows · no totals · mixed capitalisation · status notes crammed into spare column
+      </div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="section">
+    <div class="label">After — the rebuilt system</div>
+    <h2>Clean, structured, ready to use</h2>
+    <div class="sheet">
+      <div class="sheet-tab">
+        <div class="tab inactive">BEFORE (Original)</div>
+        <div class="tab active-good">✓ Expenses Tracker</div>
+        <div class="tab inactive">Summary</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="sheet-table">
+          <tr class="clean-header-row">
+            <th>Date</th><th>Description</th><th>Amount (£)</th><th>Category</th><th>Status</th><th>Notes</th>
+          </tr>
+          <tr class="clean-row"><td>03/01/2026</td><td>Zoom – monthly subscription</td><td class="amount">£14.99</td><td>Software</td><td><span class="tag recurring">Recurring</span></td><td></td></tr>
+          <tr class="clean-row alt"><td>03/01/2026</td><td>Canva Pro – monthly subscription</td><td class="amount">£12.99</td><td>Software</td><td><span class="tag recurring">Recurring</span></td><td></td></tr>
+          <tr class="clean-row"><td>05/01/2026</td><td>Client lunch – The Ivy Brasserie</td><td class="amount">£47.50</td><td>Entertainment</td><td><span class="tag reimbursable">Reimbursable</span></td><td>Client: Whitmore & Co</td></tr>
+          <tr class="clean-row alt"><td>05/01/2026</td><td>Dropbox – monthly storage</td><td class="amount">£9.99</td><td>Software</td><td><span class="tag recurring">Recurring</span></td><td></td></tr>
+          <tr class="clean-row"><td>12/01/2026</td><td>Stationery – Ryman</td><td class="amount">£23.40</td><td>Office</td><td><span class="tag paid">Paid</span></td><td></td></tr>
+          <tr class="clean-row alt"><td>15/01/2026</td><td>Adobe Creative Cloud</td><td class="amount">£54.99</td><td>Software</td><td><span class="tag recurring">Recurring</span></td><td></td></tr>
+          <tr class="clean-row"><td>17/01/2026</td><td>Train – London Paddington return</td><td class="amount">£67.20</td><td>Travel</td><td><span class="tag reimbursable">Reimbursable</span></td><td>Client: Hartley Group</td></tr>
+          <tr class="clean-row alt"><td>18/01/2026</td><td>Phone bill – EE</td><td class="amount">£35.00</td><td>Utilities</td><td><span class="tag recurring">Recurring</span></td><td></td></tr>
+          <tr class="clean-row"><td>20/01/2026</td><td>Client gift – Fortnum & Mason</td><td class="amount">£30.00</td><td>Entertainment</td><td><span class="tag paid">Paid</span></td><td></td></tr>
+          <tr class="clean-row alt"><td>28/01/2026</td><td>Accountant – Q4 review</td><td class="amount">£150.00</td><td>Professional</td><td><span class="tag paid">Paid</span></td><td></td></tr>
+          <tr class="clean-row"><td>03/02/2026</td><td>Client dinner – Hawksmoor</td><td class="amount">£89.40</td><td>Entertainment</td><td><span class="tag reimbursable">Reimbursable</span></td><td>Client: Whitmore & Co</td></tr>
+          <tr class="clean-row alt"><td>04/02/2026</td><td>Train – Manchester return</td><td class="amount">£43.10</td><td>Travel</td><td><span class="tag paid">Paid</span></td><td></td></tr>
+          <tr class="total-row"><td colspan="2"><strong>TOTAL</strong></td><td class="amount"><strong>£676.56</strong></td><td colspan="3"></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY + IMPROVEMENTS -->
+  <div class="section">
+    <div class="two-col">
+      <div class="summary-box">
+        <h3>Category summary (auto-calculated)</h3>
+        <div class="summary-row"><span>Software</span><span>£110.96</span></div>
+        <div class="summary-row"><span>Entertainment</span><span>£166.90</span></div>
+        <div class="summary-row"><span>Travel</span><span>£110.30</span></div>
+        <div class="summary-row"><span>Office</span><span>£23.40</span></div>
+        <div class="summary-row"><span>Utilities</span><span>£35.00</span></div>
+        <div class="summary-row"><span>Professional</span><span>£150.00</span></div>
+        <div class="summary-row"><span>Grand Total</span><span>£676.56</span></div>
+      </div>
+
+      <div>
+        <div class="label">What changed</div>
+        <h2 style="margin-bottom:1rem;">Improvements made</h2>
+        <ul class="improvements">
+          <li>Consistent date format throughout (DD/MM/YYYY)</li>
+          <li>Proper description column — no more guesswork</li>
+          <li>Currency formatted with £ symbol and 2 decimal places</li>
+          <li>Standardised category names — no typos, no duplicates</li>
+          <li>Status column: Recurring / Reimbursable / Paid</li>
+          <li>Notes column for client attribution</li>
+          <li>Auto-filter enabled on all columns</li>
+          <li>Frozen header row — scrolls cleanly</li>
+          <li>Category summary with SUMIF formula</li>
+          <li>Running total formula — updates as you add rows</li>
+          <li>Colour-coded status tags for instant reading</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="section">
+    <div class="label">Results</div>
+    <h2>By the numbers</h2>
+    <table class="info-table">
+      <tr><td>Data accuracy before</td><td>Inconsistent dates, typos, missing categories</td></tr>
+      <tr><td>Time to find a specific expense</td><td>3–4 minutes → under 30 seconds with filter</td></tr>
+      <tr><td>Manual calculation time</td><td>~20 min/week → instant (auto-formula)</td></tr>
+      <tr><td>Estimated weekly time saved</td><td>~2 hours</td></tr>
+      <tr><td>Sheets delivered</td><td>2 tabs: BEFORE (preserved) + clean tracker</td></tr>
+      <tr><td>Setup completed in</td><td>2 days</td></tr>
+    </table>
+
+    <blockquote class="quote">
+      "I actually understand my own spending now. Before I just guessed. My accountant is going to be so pleased."
+      <cite>— Sarah Clarke, Sarah Clarke Consulting &nbsp;·&nbsp; simulated scenario</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<div class="doc-footer">
+  <span>Simply Sorted</span> · Remote admin support for UK small businesses · simplysorted.work
+</div>
+</body>
+</html>

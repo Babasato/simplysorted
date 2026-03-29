@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simply Sorted — Admin Support for UK Small Businesses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF6EF;
+      --cream-dark: #F0EAE0;
+      --green: #3D6B4F;
+      --green-light: #6A9A78;
+      --green-pale: #E8F0EB;
+      --brown: #7C5C3E;
+      --text: #2C2C2C;
+      --text-muted: #7A7060;
+      --white: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: rgba(250,246,239,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--cream-dark);
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      color: var(--green);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green); }
+
+    .nav-cta {
+      background: var(--green);
+      color: var(--white) !important;
+      padding: 0.55rem 1.3rem;
+      border-radius: 2rem;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--green-light) !important; color: var(--white) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 7rem 2.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 80% 30%, rgba(106,154,120,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 10% 80%, rgba(61,107,79,0.1) 0%, transparent 60%);
+    }
+
+    .hero-leaf {
+      position: absolute; right: -60px; top: 50%;
+      transform: translateY(-55%);
+      width: 520px; opacity: 0.08;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 680px;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--green-pale);
+      color: var(--green);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 1rem;
+      border-radius: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 1.4rem;
+    }
+
+    h1 span { color: var(--green); }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin-bottom: 2.2rem;
+      font-weight: 300;
+    }
+
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+    .btn-primary {
+      background: var(--green);
+      color: var(--white);
+      padding: 0.85rem 2rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--green-light); transform: translateY(-2px); }
+
+    .btn-ghost {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      border-bottom: 1.5px solid var(--green-light);
+      padding-bottom: 2px;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--green-light); }
+
+    .hero-trust {
+      margin-top: 3rem;
+      display: flex; align-items: center; gap: 0.8rem;
+      font-size: 0.85rem; color: var(--text-muted);
+    }
+    .trust-dots { display: flex; gap: 4px; }
+    .trust-dots span {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green-light); opacity: 0.6;
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 5rem 2.5rem; }
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .section-intro {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      font-weight: 300;
+    }
+
+    /* ── PAIN STRIP ── */
+    .pain-strip {
+      background: var(--green);
+      color: var(--white);
+      padding: 3.5rem 2.5rem;
+    }
+
+    .pain-strip .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem 4rem;
+      align-items: center;
+    }
+
+    .pain-text h2 { color: var(--white); margin-bottom: 0.8rem; }
+    .pain-text p { color: rgba(255,255,255,0.75); font-weight: 300; }
+
+    .pain-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; }
+    .pain-list li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.95rem; color: rgba(255,255,255,0.88);
+    }
+    .pain-list li::before {
+      content: '×';
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.3;
+      flex-shrink: 0;
+    }
+
+    /* ── SERVICES ── */
+    .services { background: var(--white); }
+
+    .services-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 3rem; gap: 1rem; flex-wrap: wrap;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .service-card {
+      background: var(--cream);
+      border-radius: 1rem;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid var(--cream-dark);
+    }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(61,107,79,0.1); }
+
+    .service-icon {
+      width: 44px; height: 44px; border-radius: 0.75rem;
+      background: var(--green-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .service-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .service-card p { font-size: 0.92rem; color: var(--text-muted); font-weight: 300; margin-bottom: 1.2rem; }
+
+    .service-outcomes { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .service-outcomes li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .service-outcomes li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+    .service-footer {
+      margin-top: 1.5rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--cream-dark);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .service-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--green);
+    }
+    .service-price small { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--text-muted); display: block; }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--cream); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .step {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--green);
+      color: var(--white);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .step h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .step p { font-size: 0.88rem; color: var(--text-muted); font-weight: 300; }
+
+    /* ── PORTFOLIO ── */
+    .portfolio { background: var(--white); }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .portfolio-card {
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--cream-dark);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .portfolio-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(61,107,79,0.1); }
+
+    .portfolio-visual {
+      height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pv-inbox { background: linear-gradient(135deg, #E8F0EB, #d4e8db); }
+    .pv-sheet { background: linear-gradient(135deg, #FFF3E0, #FFE0B2); }
+    .pv-files { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+
+    .portfolio-body { padding: 1.5rem; background: var(--cream); }
+    .portfolio-body h3 { font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
+    .portfolio-body p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; font-weight: 300; }
+
+    .outcome-tag {
+      display: inline-block;
+      background: var(--green-pale);
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.3rem 0.8rem;
+      border-radius: 2rem;
+    }
+
+    .portfolio-link {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      margin-top: 1rem;
+      font-size: 0.82rem; font-weight: 500;
+      color: var(--green); text-decoration: none;
+      border-bottom: 1px solid var(--green-light);
+      padding-bottom: 1px;
+      transition: color 0.2s;
+    }
+    .portfolio-link:hover { color: var(--green-light); }
+
+    /* ── PRICING ── */
+    .pricing { background: var(--cream); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .pricing-card {
+      background: var(--white);
+      border-radius: 1rem;
+      padding: 2rem;
+      border: 1px solid var(--cream-dark);
+      transition: transform 0.2s;
+    }
+    .pricing-card:hover { transform: translateY(-3px); }
+
+    .pricing-card.featured {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--white);
+    }
+
+    .pricing-card h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    .pricing-card.featured h3 { color: rgba(255,255,255,0.7); }
+
+    .pricing-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      margin-bottom: 0.3rem;
+    }
+    .pricing-amount span { font-size: 1.1rem; font-family: 'DM Sans', sans-serif; }
+
+    .pricing-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; font-weight: 300; }
+    .pricing-card.featured .pricing-desc { color: rgba(255,255,255,0.7); }
+
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.8rem; }
+    .pricing-features li { font-size: 0.88rem; display: flex; align-items: flex-start; gap: 0.5rem; }
+    .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .pricing-card.featured .pricing-features li::before { color: rgba(255,255,255,0.8); }
+
+    .btn-outline {
+      display: block; text-align: center;
+      border: 1.5px solid var(--green);
+      color: var(--green);
+      padding: 0.75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { background: var(--green); color: var(--white); }
+
+    .btn-white {
+      display: block; text-align: center;
+      background: var(--white);
+      color: var(--green);
+      padding: 0.75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .btn-white:hover { opacity: 0.88; }
+
+    /* ── FAQ ── */
+    .faq { background: var(--white); }
+    .faq-list { max-width: 680px; margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0; }
+
+    .faq-item { border-bottom: 1px solid var(--cream-dark); }
+    .faq-q {
+      width: 100%; text-align: left; background: none; border: none;
+      padding: 1.2rem 0; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'DM Sans', sans-serif; font-size: 0.97rem; font-weight: 500;
+      color: var(--text);
+    }
+    .faq-q span { color: var(--green); font-size: 1.2rem; transition: transform 0.25s; }
+    .faq-q.open span { transform: rotate(45deg); }
+
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s;
+      font-size: 0.9rem; color: var(--text-muted); font-weight: 300;
+    }
+    .faq-a.open { max-height: 200px; padding-bottom: 1.2rem; }
+
+    /* ── CONTACT ── */
+    .contact { background: var(--green); color: var(--white); text-align: center; padding: 5rem 2.5rem; }
+    .contact h2 { color: var(--white); margin-bottom: 0.8rem; }
+    .contact p { color: rgba(255,255,255,0.75); font-weight: 300; max-width: 480px; margin: 0 auto 2rem; }
+
+    .contact-form {
+      max-width: 500px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%; padding: 0.85rem 1.2rem;
+      border-radius: 0.6rem; border: none;
+      background: rgba(255,255,255,0.12);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      outline: none;
+      transition: background 0.2s;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder { color: rgba(255,255,255,0.5); }
+    .contact-form input:focus,
+    .contact-form textarea:focus { background: rgba(255,255,255,0.2); }
+    .contact-form textarea { min-height: 110px; resize: vertical; }
+
+    .contact-form button {
+      background: var(--white); color: var(--green);
+      border: none; padding: 0.9rem 2rem;
+      border-radius: 2rem; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .contact-form button:hover { opacity: 0.88; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #1E2E24;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 1.8rem;
+      font-size: 0.82rem;
+    }
+    footer span { color: rgba(255,255,255,0.8); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.2rem; }
+      .pain-strip .container { grid-template-columns: 1fr; }
+      .hero { padding: 6rem 1.2rem 3rem; }
+      .services-header { flex-direction: column; align-items: flex-start; }
+      .contact { padding: 4rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Simply Sorted</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#portfolio">Work</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact" class="nav-cta">Request a Free Audit</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <svg class="hero-leaf" viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M150 10 C200 80 280 150 270 250 C260 350 180 390 150 390 C120 390 40 350 30 250 C20 150 100 80 150 10Z" fill="#3D6B4F"/>
+  </svg>
+  <div class="hero-content">
+    <div class="hero-tag">Admin Support for UK Small Businesses</div>
+    <h1>Stop drowning in<br/><span>admin chaos.</span><br/>Start focusing on growth.</h1>
+    <p class="hero-sub">I organise your inbox, files, and spreadsheets so you can reclaim hours every week and run your business with clarity.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Request a Free Audit</a>
+      <a href="#services" class="btn-ghost">See what's included →</a>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-dots"><span></span><span></span><span></span></div>
+      Starting from £75 · Remote · No contract · Built for small businesses
+    </div>
+  </div>
+</section>
+
+<!-- PAIN STRIP -->
+<div class="pain-strip">
+  <div class="container">
+    <div class="pain-text">
+      <h2>Sound familiar?</h2>
+      <p>Most small business owners spend 5–10 hours a week on admin that should take 1. It doesn't have to be this way.</p>
+    </div>
+    <ul class="pain-list">
+      <li>Inbox with 2,000+ unread emails you can't face</li>
+      <li>Spreadsheet that only makes sense to you</li>
+      <li>Files scattered across your desktop and Downloads folder</li>
+      <li>Important client emails buried under newsletters</li>
+      <li>No system — just survival mode</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header">
+      <div>
+        <div class="section-label">What I do</div>
+        <h2>Three things. Done properly.</h2>
+        <p class="section-intro">Each service delivers a clean, working system — not a template, a real setup built around how your business operates.</p>
+      </div>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D6B4F" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M7 4v5M17 4v5"/>
+          </svg>
+        </div>
+        <h3>Inbox Organisation</h3>
+        <p>Your Gmail or Outlook transformed from chaos into a calm, organised system with folders, filters, and priorities that actually work.</p>
+        <ul class="service-outcomes">
+          <li>Labels & folders set up for your workflow</li>
+          <li>Filters that auto-sort newsletters, receipts, clients</li>
+          <li>Priority inbox highlighting what matters</li>
+          <li>Unsubscribe sweep included</li>
+        </ul>
+        <div class="service-footer">
+          <div class="service-price">£75 <small>one-off setup</small></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D6B4F" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+          </svg>
+        </div>
+        <h3>Spreadsheet Cleanup</h3>
+        <p>Your messy tracking sheet rebuilt into a clean, readable system with clear columns, formatting, and totals that update automatically.</p>
+        <ul class="service-outcomes">
+          <li>Expenses, sales, or invoice tracking</li>
+          <li>Bold headers, consistent formatting</li>
+          <li>Filters & sortable columns</li>
+          <li>Monthly totals and summaries</li>
+        </ul>
+        <div class="service-footer">
+          <div class="service-price">£75 <small>one-off setup</small></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D6B4F" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+        </div>
+        <h3>File & Folder System</h3>
+        <p>Your Google Drive or computer organised into a logical structure with consistent naming so any file takes under 30 seconds to find.</p>
+        <ul class="service-outcomes">
+          <li>Clear folder hierarchy built for your business</li>
+          <li>Consistent file naming convention</li>
+          <li>Existing files sorted and placed correctly</li>
+          <li>Simple guide so it stays organised</li>
+        </ul>
+        <div class="service-footer">
+          <div class="service-price">£75 <small>one-off setup</small></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="section-label">The process</div>
+    <h2>Simple from start to finish.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Free 30-min call</h3>
+        <p>We talk through what's messy and what you actually need. No pressure, no pitch.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>I get to work</h3>
+        <p>You share access. I build the system remotely, usually within 2–3 days.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Walkthrough & handover</h3>
+        <p>I show you everything, answer your questions, and leave you a simple guide.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Back in control</h3>
+        <p>You get hours back every week. The system keeps working without you lifting a finger.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="portfolio" id="portfolio">
+  <div class="container">
+    <div class="section-label">Example work</div>
+    <h2>Before & after.</h2>
+    <p class="section-intro">Real transformations — from overwhelming to organised.</p>
+    <div class="portfolio-grid">
+
+      <div class="portfolio-card">
+        <div class="portfolio-visual pv-inbox">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#3D6B4F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M7 4v5M17 4v5"/>
+          </svg>
+        </div>
+        <div class="portfolio-body">
+          <h3>Inbox Organisation System</h3>
+          <p>Transformed a cluttered inbox with 3,000+ unread emails into a calm, filtered system using folders and smart rules.</p>
+          <span class="outcome-tag">Inbox reduced from 3,000+ emails to a structured system in under 48 hours</span>
+          <br/>
+          <a class="portfolio-link" href="project1_inbox.html" target="_blank">View case study →</a>
+        </div>
+      </div>
+
+      <div class="portfolio-card">
+        <div class="portfolio-visual pv-sheet">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#7C5C3E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+          </svg>
+        </div>
+        <div class="portfolio-body">
+          <h3>Spreadsheet Cleanup & Tracking</h3>
+          <p>Rebuilt a chaotic expenses sheet into a clean monthly tracker with formatted columns and automatic totals.</p>
+          <span class="outcome-tag">Cut manual tracking time by ~2 hours per week</span>
+          <br/>
+          <a class="portfolio-link" href="project2_spreadsheet.html" target="_blank">View case study →</a>
+        </div>
+      </div>
+
+      <div class="portfolio-card">
+        <div class="portfolio-visual pv-files">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+        </div>
+        <div class="portfolio-body">
+          <h3>File & Folder Organisation</h3>
+          <p>Structured a Google Drive with no folders into a clear hierarchy with a consistent naming system and a simple maintenance guide.</p>
+          <span class="outcome-tag">Reduced file search time from minutes to seconds</span>
+          <br/>
+          <a class="portfolio-link" href="project3_files.html" target="_blank">View case study →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label">Investment</div>
+    <h2>Clear, simple pricing.</h2>
+    <p class="section-intro">Most clients start with one area, then expand once they see the results.</p>
+    <div class="pricing-grid">
+
+      <div class="pricing-card">
+        <h3>Single Service</h3>
+        <div class="pricing-amount"><span>£</span>75</div>
+        <p class="pricing-desc">One area sorted, done properly.</p>
+        <ul class="pricing-features">
+          <li>Inbox <em>or</em> Files <em>or</em> Spreadsheet</li>
+          <li>Free 30-min audit call</li>
+          <li>2–3 day turnaround</li>
+          <li>Walkthrough included</li>
+        </ul>
+        <a href="#contact" class="btn-outline">Get started</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <h3>Full Bundle</h3>
+        <div class="pricing-amount"><span>£</span>199</div>
+        <p class="pricing-desc">All three services. Save £26.</p>
+        <ul class="pricing-features">
+          <li>Inbox + Files + Spreadsheet</li>
+          <li>Free 30-min audit call</li>
+          <li>Priority 3-day turnaround</li>
+          <li>Walkthrough + written guide</li>
+          <li>1 week of follow-up support</li>
+        </ul>
+        <a href="#contact" class="btn-white">Get started</a>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Monthly System Maintenance</h3>
+        <div class="pricing-amount"><span>£</span>49<span style="font-size:1rem">/mo</span></div>
+        <p class="pricing-desc">Your systems stay clean, without you thinking about them.</p>
+        <ul class="pricing-features">
+          <li>Inbox stays organised</li>
+          <li>New emails automatically sorted</li>
+          <li>Small adjustments &amp; fixes</li>
+          <li>Light ongoing support</li>
+        </ul>
+        <a href="#contact" class="btn-outline">Enquire</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="section-label">Questions</div>
+    <h2>Honest answers.</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How do you access my inbox or files? <span>+</span>
+        </button>
+        <div class="faq-a">You share access via Google's standard sharing settings or grant temporary access to your Gmail. You stay in full control and can revoke access at any time. I never store your passwords.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Will anything be deleted without my permission? <span>+</span>
+        </button>
+        <div class="faq-a">Never. I only organise — nothing is deleted unless you specifically ask me to, and even then I confirm with you first. Your data stays yours.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How long does it take? <span>+</span>
+        </button>
+        <div class="faq-a">Most setups are completed within 2–3 business days after our initial call. Bundle projects take up to 5 days. I'll always give you a clear timeline upfront.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What if I'm not happy with the result? <span>+</span>
+        </button>
+        <div class="faq-a">I offer one round of revisions on every project at no extra cost. If something doesn't work for your workflow, tell me and I'll fix it.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do I need to be technical? <span>+</span>
+        </button>
+        <div class="faq-a">Not at all. If you use Gmail or Google Drive, that's enough. I'll walk you through everything and leave you a plain-English guide.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <h2>Ready to get sorted?</h2>
+  <p>Book a free 30-minute audit call. No commitment — just a conversation about what would actually help you.</p>
+  <p style="font-size:0.85rem; opacity:0.8; margin-bottom: 1.5rem;">No pressure. I'll review your situation and suggest what actually helps.</p>
+  <form class="contact-form" onsubmit="handleSubmit(event)">
+    <input type="text" placeholder="Your name" required />
+    <input type="email" placeholder="Your email address" required />
+    <input type="text" placeholder="Your business type (e.g. freelance designer, café owner)" />
+    <textarea placeholder="What's giving you the most admin headache right now?"></textarea>
+    <button type="submit">Send message →</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 <span>Simply Sorted</span> · Remote admin support for UK small businesses · All rights reserved</p>
+</footer>
+
+<script>
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = btn.classList.contains('open');
+    document.querySelectorAll('.faq-q').forEach(b => { b.classList.remove('open'); b.nextElementSibling.classList.remove('open'); });
+    if (!isOpen) { btn.classList.add('open'); answer.classList.add('open'); }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = '✓ Message sent — I\'ll be in touch within 24 hours';
+    btn.style.background = '#6A9A78';
+    btn.style.color = '#fff';
+    btn.disabled = true;
+  }
+
+  // Subtle scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = 1; e.target.style.transform = 'translateY(0)'; } });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.service-card, .step, .portfolio-card, .pricing-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
