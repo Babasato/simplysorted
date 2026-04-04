@@ -70,6 +70,71 @@
     }
     .nav-cta:hover { background: var(--green-light) !important; color: var(--white) !important; }
 
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 110;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--green);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE NAV DRAWER ── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 99;
+      background: var(--cream);
+      padding: 5.5rem 2rem 2rem;
+      border-bottom: 1px solid var(--cream-dark);
+      flex-direction: column;
+      gap: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-100%);
+      transition: transform 0.35s ease;
+    }
+    .mobile-nav.open {
+      transform: translateY(0);
+    }
+    .mobile-nav a {
+      text-decoration: none;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--cream-dark);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { color: var(--green); }
+    .mobile-nav .mobile-cta {
+      margin-top: 1.2rem;
+      background: var(--green);
+      color: var(--white) !important;
+      text-align: center;
+      padding: 0.85rem;
+      border-radius: 2rem;
+      border-bottom: none;
+    }
+    .mobile-nav .mobile-cta:hover { background: var(--green-light); }
+
     /* ── HERO ── */
     .hero {
       min-height: 100vh;
@@ -497,6 +562,28 @@
     .contact-form textarea:focus { background: rgba(255,255,255,0.2); }
     .contact-form textarea { min-height: 110px; resize: vertical; }
 
+    /* ── FIX: Dropdown visibility ── */
+    .contact-form select {
+      width: 100%;
+      padding: 0.85rem 1.2rem;
+      border-radius: 0.6rem;
+      border: none;
+      background: rgba(255,255,255,0.9);
+      color: #2C2C2C;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: pointer;
+      appearance: auto;
+    }
+    .contact-form select option {
+      background: #ffffff;
+      color: #2C2C2C;
+    }
+    .contact-form select option:disabled {
+      color: #7A7060;
+    }
+
     .contact-form button {
       background: var(--white); color: var(--green);
       border: none; padding: 0.9rem 2rem;
@@ -526,6 +613,8 @@
     @media (max-width: 700px) {
       nav { padding: 1rem 1.2rem; }
       .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .mobile-nav { display: flex; }
       section { padding: 4rem 1.2rem; }
       .pain-strip .container { grid-template-columns: 1fr; }
       .hero { padding: 6rem 1.2rem 3rem; }
@@ -545,7 +634,21 @@
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#contact" class="nav-cta">Get Started</a></li>
   </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <a href="#services" class="mobile-link">Services</a>
+  <a href="#portfolio" class="mobile-link">Work</a>
+  <a href="#pricing" class="mobile-link">Pricing</a>
+  <a href="#faq" class="mobile-link">FAQ</a>
+  <a href="#contact" class="mobile-cta">Get Started — No Call Needed</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -852,11 +955,11 @@
     <input type="text" placeholder="Your name" required />
     <input type="email" placeholder="Your email address" required />
     <input type="text" placeholder="Your business type (e.g. freelance designer, café owner)" />
-    <select style="width:100%;padding:0.85rem 1.2rem;border-radius:0.6rem;border:none;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-family:'DM Sans',sans-serif;font-size:0.95rem;outline:none;">
+    <select>
       <option value="" disabled selected>Which service are you interested in?</option>
       <option>Inbox Organisation — £75</option>
       <option>Spreadsheet Cleanup — £75</option>
-      <option>File & Folder System — £75</option>
+      <option>File &amp; Folder System — £75</option>
       <option>Full Bundle (all three) — £199</option>
       <option>Monthly System Maintenance — £49/mo</option>
     </select>
@@ -871,13 +974,21 @@
 </footer>
 
 <script>
+  // ── FAQ TOGGLE ──
   function toggleFaq(btn) {
     const answer = btn.nextElementSibling;
     const isOpen = btn.classList.contains('open');
-    document.querySelectorAll('.faq-q').forEach(b => { b.classList.remove('open'); b.nextElementSibling.classList.remove('open'); });
-    if (!isOpen) { btn.classList.add('open'); answer.classList.add('open'); }
+    document.querySelectorAll('.faq-q').forEach(b => {
+      b.classList.remove('open');
+      b.nextElementSibling.classList.remove('open');
+    });
+    if (!isOpen) {
+      btn.classList.add('open');
+      answer.classList.add('open');
+    }
   }
 
+  // ── CONTACT FORM ──
   function handleSubmit(e) {
     e.preventDefault();
     const btn = e.target.querySelector('button');
@@ -887,9 +998,38 @@
     btn.disabled = true;
   }
 
-  // Subtle scroll reveal
+  // ── HAMBURGER MENU ──
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    mobileNav.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen);
+    mobileNav.setAttribute('aria-hidden', !isOpen);
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  // Close mobile nav when a link is clicked
+  document.querySelectorAll('.mobile-nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileNav.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', false);
+      mobileNav.setAttribute('aria-hidden', true);
+      document.body.style.overflow = '';
+    });
+  });
+
+  // ── SCROLL REVEAL ──
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = 1; e.target.style.transform = 'translateY(0)'; } });
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = 1;
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.service-card, .step, .portfolio-card, .pricing-card').forEach(el => {
